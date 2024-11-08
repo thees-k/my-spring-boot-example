@@ -15,6 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +25,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.util.StringUtils;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import k.thees.myspringbootexample.model.TopicDto;
+import k.thees.myspringbootexample.model.TopicStyle;
 import k.thees.myspringbootexample.services.TopicService;
 import k.thees.myspringbootexample.services.TopicServiceImpl;
 
@@ -52,7 +56,7 @@ class TopicControllerTest {
 	@Autowired
 	MockMvc mockMvc;
 
-	@Autowired
+	@Autowired // Spring Boot is auto configuring an ObjectMapper for the use within the Spring context. Here we use that ObjectMapper.
 	ObjectMapper objectMapper;
 
 	@MockBean
@@ -110,13 +114,57 @@ class TopicControllerTest {
 	}
 
 	private String formatJson(String jsonResponse) throws JsonProcessingException, JsonMappingException {
-		objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // Enable pretty-printing
 
-		// Parse the JSON string and format it
-		Object json = objectMapper.readValue(jsonResponse, Object.class);
-		return objectMapper.writeValueAsString(json);
+		if (StringUtils.isBlank(jsonResponse)) {
+			return "";
+		} else {
+			objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // Enable pretty-printing
+
+			// Parse the JSON string and format it
+			Object json = objectMapper.readValue(jsonResponse, Object.class);
+			return objectMapper.writeValueAsString(json);
+		}
+
 	}
 
+
+	@Test
+	void testCreate() throws Exception {
+
+		var localDateTime = LocalDateTime.now();
+
+		TopicDto inputTopicDto = TopicDto.builder().build();
+
+		TopicDto outputTopicDto = TopicDto.builder().createdDate(localDateTime).id(UUID.randomUUID()).name("test topic")
+				.price(new BigDecimal("10.0")).quantityOnHand(10).style(TopicStyle.MAGENTA).upc("test upc")
+				.updateDate(localDateTime).version(0).build();
+
+		given(topicService.create(inputTopicDto)).willReturn(outputTopicDto);
+
+		String json = objectMapper.writeValueAsString(inputTopicDto);
+
+		System.out.println(formatJson(json));
+
+		MvcResult result = mockMvc
+				.perform(post(TopicController.TOPICS_PATH)
+						.accept(MediaType.APPLICATION_JSON)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(json))
+				.andExpect(status().isCreated())
+				.andExpect(header().exists("Location"))
+				.andExpect(header().string("location", TopicController.TOPICS_PATH + "/" +outputTopicDto.getId()))
+				.andReturn();
+
+		// Print response headers
+		System.out.println("Response Headers:");
+		result.getResponse().getHeaderNames().forEach(
+				headerName -> System.out.println(headerName + ": " + result.getResponse().getHeader(headerName)));
+
+		// Print response body
+		String responseJson = result.getResponse().getContentAsString();
+		System.out.println("Response Body:\n" + formatJson(responseJson));
+
+	}
 
 	@Test
 	void testPatch() throws Exception {
@@ -156,19 +204,6 @@ class TopicControllerTest {
 		.andExpect(status().isNoContent());
 
 		verify(topicService).update(any(UUID.class), any(TopicDto.class));
-	}
-
-	@Test
-	void testCreate() throws Exception {
-		TopicDto topicDto = topicServiceImpl.getAll().get(0);
-		topicDto.setVersion(null);
-		topicDto.setId(null);
-
-		given(topicService.create(any(TopicDto.class))).willReturn(topicServiceImpl.getAll().get(1));
-
-		mockMvc.perform(post(TopicController.TOPICS_PATH).accept(MediaType.APPLICATION_JSON)
-				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(topicDto)))
-		.andExpect(status().isCreated()).andExpect(header().exists("Location"));
 	}
 
 	@Test
