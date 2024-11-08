@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -29,8 +30,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultMatcher;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import k.thees.myspringbootexample.model.TopicDto;
 import k.thees.myspringbootexample.services.TopicService;
@@ -71,13 +77,46 @@ class TopicControllerTest {
 
 		given(topicService.get(topicDto.getId())).willReturn(Optional.of(topicDto));
 
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(TopicDto.LOCAL_DATE_TIME_FORMAT);
+
 		// mockMvc sends a mock GET request:
-		mockMvc.perform(get(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk())
-		.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-		.andExpect(jsonPath("$.id", is(topicDto.getId().toString())))
-		.andExpect(jsonPath("$.name", is(topicDto.getName())));
+		MvcResult result = mockMvc.perform(get(TopicController.TOPICS_PATH_ID, topicDto.getId())
+				.accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(buildMatcher("id", topicDto.getId()))
+				.andExpect(buildMatcher("version", topicDto.getVersion()))
+				.andExpect(buildMatcher("name", topicDto.getName()))
+				.andExpect(buildMatcher("style", topicDto.getStyle()))
+				.andExpect(buildMatcher("upc", topicDto.getUpc()))
+				.andExpect(buildMatcher("quantityOnHand", topicDto.getQuantityOnHand()))
+				.andExpect(buildMatcher("price", topicDto.getPrice()))
+				.andExpect(buildMatcher("createdDate", topicDto.getCreatedDate().format(formatter)))
+				.andExpect(buildMatcher("updateDate", topicDto.getUpdateDate().format(formatter)))
+				.andReturn();
+
+		// Get the JSON response as a string
+		String jsonResponse = result.getResponse().getContentAsString();
+
+		// Print out the JSON response
+		System.out.println("\nJSON Response:\n" + jsonResponse);
+
+		// Print the formatted JSON
+		System.out.println(formatJson(jsonResponse));
 	}
+
+	private ResultMatcher buildMatcher(String fieldName, Object object) {
+		return jsonPath("$."+fieldName).value(object + "");
+	}
+
+	private String formatJson(String jsonResponse) throws JsonProcessingException, JsonMappingException {
+		objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // Enable pretty-printing
+
+		// Parse the JSON string and format it
+		Object json = objectMapper.readValue(jsonResponse, Object.class);
+		return objectMapper.writeValueAsString(json);
+	}
+
 
 	@Test
 	void testPatch() throws Exception {
