@@ -20,7 +20,7 @@ import k.thees.myspringbootexample.services.TopicService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j // From Lombok, enables logging, something like:  log.debug("Get Topic by Id - in controller");
 @RequiredArgsConstructor // Generates a constructor for all final fields and all fields that are marked with @NonNull
 @RestController
 public class TopicController {

@@ -39,6 +39,9 @@ import k.thees.myspringbootexample.services.TopicServiceImpl;
 @WebMvcTest(TopicController.class)
 class TopicControllerTest {
 
+	// It's pretty common to have properties with package visibility in test classes.
+	// And to use @Autowired to inject dependencies.
+
 	@Autowired
 	MockMvc mockMvc;
 
@@ -70,7 +73,7 @@ class TopicControllerTest {
 
 		mockMvc.perform(patch(TopicController.TOPICS_PATH_ID, topicDto.getId()).contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(topicMap)))
-				.andExpect(status().isNoContent());
+		.andExpect(status().isNoContent());
 
 		verify(topicService).patch(uuidArgumentCaptor.capture(), topicArgumentCaptor.capture());
 
@@ -83,7 +86,7 @@ class TopicControllerTest {
 		TopicDto topicDto = topicServiceImpl.getAll().get(0);
 
 		mockMvc.perform(delete(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON))
-				.andExpect(status().isNoContent());
+		.andExpect(status().isNoContent());
 
 		verify(topicService).delete(uuidArgumentCaptor.capture());
 
@@ -96,7 +99,7 @@ class TopicControllerTest {
 
 		mockMvc.perform(put(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(topicDto)))
-				.andExpect(status().isNoContent());
+		.andExpect(status().isNoContent());
 
 		verify(topicService).update(any(UUID.class), any(TopicDto.class));
 	}
@@ -111,7 +114,7 @@ class TopicControllerTest {
 
 		mockMvc.perform(post(TopicController.TOPICS_PATH).accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(topicDto)))
-				.andExpect(status().isCreated()).andExpect(header().exists("Location"));
+		.andExpect(status().isCreated()).andExpect(header().exists("Location"));
 	}
 
 	@Test
@@ -119,7 +122,7 @@ class TopicControllerTest {
 		given(topicService.getAll()).willReturn(topicServiceImpl.getAll());
 
 		mockMvc.perform(get(TopicController.TOPICS_PATH).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.length()", is(3)));
+		.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.length()", is(3)));
 	}
 
 	@Test
@@ -137,8 +140,8 @@ class TopicControllerTest {
 		given(topicService.get(topicDto.getId())).willReturn(Optional.of(topicDto));
 
 		mockMvc.perform(get(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(jsonPath("$.id", is(topicDto.getId().toString())))
-				.andExpect(jsonPath("$.name", is(topicDto.getName())));
+		.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+		.andExpect(jsonPath("$.id", is(topicDto.getId().toString())))
+		.andExpect(jsonPath("$.name", is(topicDto.getName())));
 	}
 }
