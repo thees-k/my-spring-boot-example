@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class TopicDto {
 
-	public static final String LOCAL_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+	public static final String LOCAL_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
 	private UUID id;
 	private Integer version;

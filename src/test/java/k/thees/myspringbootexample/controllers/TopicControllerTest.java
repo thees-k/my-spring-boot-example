@@ -199,8 +199,10 @@ class TopicControllerTest {
 	void testUpdate() throws Exception {
 		TopicDto topicDto = topicServiceImpl.getAll().get(0);
 
-		mockMvc.perform(put(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON)
-				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(topicDto)))
+		mockMvc.perform(put(TopicController.TOPICS_PATH_ID, topicDto.getId())
+				.accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(topicDto)))
 		.andExpect(status().isNoContent());
 
 		verify(topicService).update(any(UUID.class), any(TopicDto.class));
