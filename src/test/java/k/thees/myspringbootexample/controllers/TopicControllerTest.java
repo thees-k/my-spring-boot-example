@@ -39,7 +39,8 @@ import k.thees.myspringbootexample.services.TopicServiceImpl;
 @WebMvcTest(TopicController.class)
 class TopicControllerTest {
 
-	// It's pretty common to have properties with package visibility in test classes.
+	// It's pretty common to have properties with package visibility in test
+	// classes.
 	// And to use @Autowired to inject dependencies.
 
 	@Autowired
@@ -62,6 +63,18 @@ class TopicControllerTest {
 	@BeforeEach
 	void setUp() {
 		topicServiceImpl = new TopicServiceImpl();
+	}
+
+	@Test
+	void testGet() throws Exception {
+		TopicDto topicDto = topicServiceImpl.getAll().get(0);
+
+		given(topicService.get(topicDto.getId())).willReturn(Optional.of(topicDto));
+
+		mockMvc.perform(get(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+		.andExpect(jsonPath("$.id", is(topicDto.getId().toString())))
+		.andExpect(jsonPath("$.name", is(topicDto.getName())));
 	}
 
 	@Test
@@ -131,17 +144,5 @@ class TopicControllerTest {
 		given(topicService.get(any(UUID.class))).willReturn(Optional.empty());
 
 		mockMvc.perform(get(TopicController.TOPICS_PATH_ID, UUID.randomUUID())).andExpect(status().isNotFound());
-	}
-
-	@Test
-	void testGet() throws Exception {
-		TopicDto topicDto = topicServiceImpl.getAll().get(0);
-
-		given(topicService.get(topicDto.getId())).willReturn(Optional.of(topicDto));
-
-		mockMvc.perform(get(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
-		.andExpect(jsonPath("$.id", is(topicDto.getId().toString())))
-		.andExpect(jsonPath("$.name", is(topicDto.getName())));
 	}
 }
