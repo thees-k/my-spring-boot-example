@@ -3,7 +3,6 @@ package k.thees.myspringbootexample.services;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,20 @@ public class TopicServiceJPA implements TopicService {
 
 	@Override
 	public List<TopicDto> getAll() {
-		return topicRepository.findAll().stream().map(topicMapper::entityToDto).collect(Collectors.toList());
+		return topicRepository
+				.findAll()
+				.stream()
+				.map(topicMapper::entityToDto)
+				.toList();
 	}
 
 	@Override
 	public Optional<TopicDto> get(UUID id) {
-		return Optional.ofNullable(topicMapper.entityToDto(topicRepository.findById(id).orElse(null)));
+		return topicRepository//
+				.findById(id)
+				.map(topicMapper::entityToDto)
+				.map(Optional::of)
+				.orElse(Optional.empty());
 	}
 
 	@Override
