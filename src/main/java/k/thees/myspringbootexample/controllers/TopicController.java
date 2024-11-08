@@ -30,6 +30,47 @@ public class TopicController {
 
 	private final TopicService topicService;
 
+	@GetMapping(value = TOPICS_PATH) // GET http://localhost:8080/api/v1/topics
+	public ResponseEntity<List<TopicDto>> getAll() {
+		return new ResponseEntity<>(topicService.getAll(), HttpStatus.OK);
+	}
+
+	@GetMapping(value = TOPICS_PATH_ID)
+	public ResponseEntity<TopicDto> get(@PathVariable("topicId") UUID id) {
+
+		log.debug("Get Topic by Id - in controller");
+
+		var topicDto = topicService.get(id).orElseThrow(MyNotFoundException::new);
+
+		return new ResponseEntity<>(topicDto, HttpStatus.OK);
+	}
+
+
+	//	POST http://localhost:8080/api/v1/topics HTTP/1.1
+	//	content-type: application/json
+	//
+	//	{
+	//	    "name": "New topic",
+	//	    "style": "GREEN",
+	//	    "upc": "42",
+	//	    "quantityOnHand": 100,
+	//	    "price": 99.99,
+	//	    "createdDate": "2024-11-08T13:22:51.388979",
+	//	    "updateDate": "2024-11-08T13:22:51.388993"
+	//	}
+	//
+	// (Note that the empty line after the header is important!)
+	@PostMapping(TOPICS_PATH)
+	public ResponseEntity<TopicDto> create(@RequestBody TopicDto topicDto) {
+
+		TopicDto savedTopicDto = topicService.create(topicDto);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Location", TOPICS_PATH + "/" + savedTopicDto.getId().toString());
+
+		return new ResponseEntity<TopicDto>(headers, HttpStatus.CREATED);
+	}
+
 	@PatchMapping(TOPICS_PATH_ID)
 	public ResponseEntity<TopicDto> patch(@PathVariable("topicId") UUID id, @RequestBody TopicDto topicDto) {
 
@@ -52,31 +93,5 @@ public class TopicController {
 		topicService.update(id, topicDto);
 
 		return new ResponseEntity<TopicDto>(HttpStatus.NO_CONTENT);
-	}
-
-	@PostMapping(TOPICS_PATH)
-	public ResponseEntity<TopicDto> create(@RequestBody TopicDto topicDto) {
-
-		TopicDto savedTopicDto = topicService.create(topicDto);
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Location", TOPICS_PATH + "/" + savedTopicDto.getId().toString());
-
-		return new ResponseEntity<TopicDto>(headers, HttpStatus.CREATED);
-	}
-
-	@GetMapping(value = TOPICS_PATH)
-	public ResponseEntity<List<TopicDto>> getAll() {
-		return new ResponseEntity<>(topicService.getAll(), HttpStatus.OK);
-	}
-
-	@GetMapping(value = TOPICS_PATH_ID)
-	public ResponseEntity<TopicDto> get(@PathVariable("topicId") UUID id) {
-
-		log.debug("Get Topic by Id - in controller");
-
-		var topicDto = topicService.get(id).orElseThrow(MyNotFoundException::new);
-
-		return new ResponseEntity<>(topicDto, HttpStatus.OK);
 	}
 }
