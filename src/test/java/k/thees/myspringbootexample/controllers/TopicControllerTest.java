@@ -71,8 +71,10 @@ class TopicControllerTest {
 
 		given(topicService.get(topicDto.getId())).willReturn(Optional.of(topicDto));
 
+		// mockMvc sends a mock GET request:
 		mockMvc.perform(get(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk())
+		.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 		.andExpect(jsonPath("$.id", is(topicDto.getId().toString())))
 		.andExpect(jsonPath("$.name", is(topicDto.getName())));
 	}
