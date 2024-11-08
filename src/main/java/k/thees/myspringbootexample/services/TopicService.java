@@ -8,15 +8,15 @@ import k.thees.myspringbootexample.model.TopicDto;
 
 public interface TopicService {
 
-	List<TopicDto> listTopics();
+	List<TopicDto> getAll();
 
-	Optional<TopicDto> getTopicById(UUID id);
+	Optional<TopicDto> get(UUID id);
 
-	TopicDto saveNewTopic(TopicDto topicDto);
+	TopicDto create(TopicDto topicDto);
 
-	void updateTopicById(UUID id, TopicDto topicDto);
+	void update(UUID id, TopicDto topicDto);
 
-	void deleteById(UUID id);
+	void delete(UUID id);
 
-	void patchTopicById(UUID id, TopicDto topicDto);
+	void patch(UUID id, TopicDto topicDto);
 }

@@ -63,7 +63,7 @@ class TopicControllerTest {
 
 	@Test
 	void testPatch() throws Exception {
-		TopicDto topicDto = topicServiceImpl.listTopics().get(0);
+		TopicDto topicDto = topicServiceImpl.getAll().get(0);
 
 		Map<String, Object> topicMap = new HashMap<>();
 		topicMap.put("name", "New Name");
@@ -72,7 +72,7 @@ class TopicControllerTest {
 				.accept(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(topicMap)))
 				.andExpect(status().isNoContent());
 
-		verify(topicService).patchTopicById(uuidArgumentCaptor.capture(), topicArgumentCaptor.capture());
+		verify(topicService).patch(uuidArgumentCaptor.capture(), topicArgumentCaptor.capture());
 
 		assertThat(topicDto.getId()).isEqualTo(uuidArgumentCaptor.getValue());
 		assertThat(topicMap.get("name")).isEqualTo(topicArgumentCaptor.getValue().getName());
@@ -80,34 +80,34 @@ class TopicControllerTest {
 
 	@Test
 	void testDelete() throws Exception {
-		TopicDto topicDto = topicServiceImpl.listTopics().get(0);
+		TopicDto topicDto = topicServiceImpl.getAll().get(0);
 
 		mockMvc.perform(delete(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNoContent());
 
-		verify(topicService).deleteById(uuidArgumentCaptor.capture());
+		verify(topicService).delete(uuidArgumentCaptor.capture());
 
 		assertThat(topicDto.getId()).isEqualTo(uuidArgumentCaptor.getValue());
 	}
 
 	@Test
 	void testUpdate() throws Exception {
-		TopicDto topicDto = topicServiceImpl.listTopics().get(0);
+		TopicDto topicDto = topicServiceImpl.getAll().get(0);
 
 		mockMvc.perform(put(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(topicDto)))
 				.andExpect(status().isNoContent());
 
-		verify(topicService).updateTopicById(any(UUID.class), any(TopicDto.class));
+		verify(topicService).update(any(UUID.class), any(TopicDto.class));
 	}
 
 	@Test
 	void testCreate() throws Exception {
-		TopicDto topicDto = topicServiceImpl.listTopics().get(0);
+		TopicDto topicDto = topicServiceImpl.getAll().get(0);
 		topicDto.setVersion(null);
 		topicDto.setId(null);
 
-		given(topicService.saveNewTopic(any(TopicDto.class))).willReturn(topicServiceImpl.listTopics().get(1));
+		given(topicService.create(any(TopicDto.class))).willReturn(topicServiceImpl.getAll().get(1));
 
 		mockMvc.perform(post(TopicController.TOPICS_PATH).accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(topicDto)))
@@ -116,7 +116,7 @@ class TopicControllerTest {
 
 	@Test
 	void testGetAll() throws Exception {
-		given(topicService.listTopics()).willReturn(topicServiceImpl.listTopics());
+		given(topicService.getAll()).willReturn(topicServiceImpl.getAll());
 
 		mockMvc.perform(get(TopicController.TOPICS_PATH).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.length()", is(3)));
@@ -125,16 +125,16 @@ class TopicControllerTest {
 	@Test
 	void testGetNotFound() throws Exception {
 
-		given(topicService.getTopicById(any(UUID.class))).willReturn(Optional.empty());
+		given(topicService.get(any(UUID.class))).willReturn(Optional.empty());
 
 		mockMvc.perform(get(TopicController.TOPICS_PATH_ID, UUID.randomUUID())).andExpect(status().isNotFound());
 	}
 
 	@Test
 	void testGet() throws Exception {
-		TopicDto topicDto = topicServiceImpl.listTopics().get(0);
+		TopicDto topicDto = topicServiceImpl.getAll().get(0);
 
-		given(topicService.getTopicById(topicDto.getId())).willReturn(Optional.of(topicDto));
+		given(topicService.get(topicDto.getId())).willReturn(Optional.of(topicDto));
 
 		mockMvc.perform(get(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))

@@ -33,7 +33,7 @@ public class TopicController {
 	@PatchMapping(TOPICS_PATH_ID)
 	public ResponseEntity<TopicDto> patch(@PathVariable("topicId") UUID id, @RequestBody TopicDto topicDto) {
 
-		topicService.patchTopicById(id, topicDto);
+		topicService.patch(id, topicDto);
 
 		return new ResponseEntity<TopicDto>(HttpStatus.NO_CONTENT);
 	}
@@ -41,7 +41,7 @@ public class TopicController {
 	@DeleteMapping(TOPICS_PATH_ID)
 	public ResponseEntity<TopicDto> delete(@PathVariable("topicId") UUID id) {
 
-		topicService.deleteById(id);
+		topicService.delete(id);
 
 		return new ResponseEntity<TopicDto>(HttpStatus.NO_CONTENT);
 	}
@@ -49,7 +49,7 @@ public class TopicController {
 	@PutMapping(TOPICS_PATH_ID)
 	public ResponseEntity<TopicDto> update(@PathVariable("topicId") UUID id, @RequestBody TopicDto topicDto) {
 
-		topicService.updateTopicById(id, topicDto);
+		topicService.update(id, topicDto);
 
 		return new ResponseEntity<TopicDto>(HttpStatus.NO_CONTENT);
 	}
@@ -57,7 +57,7 @@ public class TopicController {
 	@PostMapping(TOPICS_PATH)
 	public ResponseEntity<TopicDto> create(@RequestBody TopicDto topicDto) {
 
-		TopicDto savedTopicDto = topicService.saveNewTopic(topicDto);
+		TopicDto savedTopicDto = topicService.create(topicDto);
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Location", TOPICS_PATH + "/" + savedTopicDto.getId().toString());
@@ -67,7 +67,7 @@ public class TopicController {
 
 	@GetMapping(value = TOPICS_PATH)
 	public ResponseEntity<List<TopicDto>> getAll() {
-		return new ResponseEntity<>(topicService.listTopics(), HttpStatus.OK);
+		return new ResponseEntity<>(topicService.getAll(), HttpStatus.OK);
 	}
 
 	@GetMapping(value = TOPICS_PATH_ID)
@@ -75,7 +75,7 @@ public class TopicController {
 
 		log.debug("Get Topic by Id - in controller");
 
-		var topicDto = topicService.getTopicById(id).orElseThrow(MyNotFoundException::new);
+		var topicDto = topicService.get(id).orElseThrow(MyNotFoundException::new);
 
 		return new ResponseEntity<>(topicDto, HttpStatus.OK);
 	}

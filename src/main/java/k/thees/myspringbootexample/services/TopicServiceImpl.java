@@ -43,7 +43,7 @@ public class TopicServiceImpl implements TopicService {
 	}
 
 	@Override
-	public void patchTopicById(UUID id, TopicDto topicDto) {
+	public void patch(UUID id, TopicDto topicDto) {
 		TopicDto existing = topicMap.get(id);
 
 		if (StringUtils.hasText(topicDto.getName())) {
@@ -68,12 +68,12 @@ public class TopicServiceImpl implements TopicService {
 	}
 
 	@Override
-	public void deleteById(UUID id) {
+	public void delete(UUID id) {
 		topicMap.remove(id);
 	}
 
 	@Override
-	public void updateTopicById(UUID id, TopicDto topicDto) {
+	public void update(UUID id, TopicDto topicDto) {
 		TopicDto existing = topicMap.get(id);
 		existing.setName(topicDto.getName());
 		existing.setPrice(topicDto.getPrice());
@@ -82,12 +82,12 @@ public class TopicServiceImpl implements TopicService {
 	}
 
 	@Override
-	public List<TopicDto> listTopics() {
+	public List<TopicDto> getAll() {
 		return new ArrayList<>(topicMap.values());
 	}
 
 	@Override
-	public Optional<TopicDto> getTopicById(UUID id) {
+	public Optional<TopicDto> get(UUID id) {
 
 		log.debug("Get Topic by Id - in service. Id: " + id.toString());
 
@@ -95,7 +95,7 @@ public class TopicServiceImpl implements TopicService {
 	}
 
 	@Override
-	public TopicDto saveNewTopic(TopicDto topicDto) {
+	public TopicDto create(TopicDto topicDto) {
 
 		TopicDto savedTopicDto = TopicDto.builder().id(UUID.randomUUID()).version(1).createdDate(LocalDateTime.now())
 				.updateDate(LocalDateTime.now()).name(topicDto.getName()).style(topicDto.getStyle())

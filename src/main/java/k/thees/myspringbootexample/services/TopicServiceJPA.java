@@ -21,32 +21,32 @@ public class TopicServiceJPA implements TopicService {
 	private final TopicMapper topicMapper;
 
 	@Override
-	public List<TopicDto> listTopics() {
+	public List<TopicDto> getAll() {
 		return topicRepository.findAll().stream().map(topicMapper::entityToDto).collect(Collectors.toList());
 	}
 
 	@Override
-	public Optional<TopicDto> getTopicById(UUID id) {
+	public Optional<TopicDto> get(UUID id) {
 		return Optional.ofNullable(topicMapper.entityToDto(topicRepository.findById(id).orElse(null)));
 	}
 
 	@Override
-	public TopicDto saveNewTopic(TopicDto topicDto) {
+	public TopicDto create(TopicDto topicDto) {
 		return null;
 	}
 
 	@Override
-	public void updateTopicById(UUID id, TopicDto topicDto) {
+	public void update(UUID id, TopicDto topicDto) {
 
 	}
 
 	@Override
-	public void deleteById(UUID id) {
+	public void delete(UUID id) {
 
 	}
 
 	@Override
-	public void patchTopicById(UUID id, TopicDto topicDto) {
+	public void patch(UUID id, TopicDto topicDto) {
 
 	}
 }
