@@ -1,4 +1,4 @@
-### Exemplanatory Spring Boot Application
+### Example Spring Boot Application
 
 For learning!
 
