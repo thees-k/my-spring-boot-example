@@ -25,17 +25,17 @@ class TopicControllerIntegrationTest {
 	TopicRepository topicRepository;
 
 	@Test
-	void testGetTopicWithMyNotFoundException() {
-		assertThrows(MyNotFoundException.class, () -> topicController.get(UUID.randomUUID()));
+	void testGet() {
+		TopicEntity topicEntity = topicRepository.findAll().get(0);
+	
+		TopicDto dto = topicController.get(topicEntity.getId()).getBody();
+	
+		assertThat(dto).isNotNull();
 	}
 
 	@Test
-	void testGet() {
-		TopicEntity topicEntity = topicRepository.findAll().get(0);
-
-		TopicDto dto = topicController.get(topicEntity.getId()).getBody();
-
-		assertThat(dto).isNotNull();
+	void testGetTopicWithMyNotFoundException() {
+		assertThrows(MyNotFoundException.class, () -> topicController.get(UUID.randomUUID()));
 	}
 
 	@Test
@@ -54,4 +54,6 @@ class TopicControllerIntegrationTest {
 
 		assertThat(dtos.size()).isEqualTo(0);
 	}
+
+
 }
