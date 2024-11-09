@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import k.thees.myspringbootexample.entities.TopicEntity;
 import k.thees.myspringbootexample.mappers.TopicMapper;
 import k.thees.myspringbootexample.model.TopicDto;
 import k.thees.myspringbootexample.repositories.TopicRepository;
@@ -39,7 +40,9 @@ public class TopicServiceJpa implements TopicService {
 
 	@Override
 	public TopicDto create(TopicDto topicDto) {
-		return null;
+
+		TopicEntity topicEntity = topicMapper.dtoToEntity(topicDto);
+		return topicMapper.entityToDto(topicRepository.save(topicEntity));
 	}
 
 	@Override
