@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Primary // Because there is another implementation of TopicService we need to tell Spring Boot what is the default one that is to take for dependency injection
 @RequiredArgsConstructor
-public class TopicServiceJPA implements TopicService {
+public class TopicServiceJpa implements TopicService {
 	private final TopicRepository topicRepository;
 	private final TopicMapper topicMapper;
 
