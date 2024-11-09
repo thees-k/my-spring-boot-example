@@ -19,8 +19,8 @@ public class TopicDto {
 	private Integer version;
 	private String name;
 	private TopicStyle style;
-	private String upc;
-	private Integer quantityOnHand;
+	private String code;
+	private Integer quantity;
 	private BigDecimal price;
 
 	@JsonFormat(pattern = LOCAL_DATE_TIME_FORMAT)

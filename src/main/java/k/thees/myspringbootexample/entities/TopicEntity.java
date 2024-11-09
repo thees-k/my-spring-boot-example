@@ -36,8 +36,8 @@ public class TopicEntity {
 	private Integer version;
 	private String name;
 	private TopicStyle style;
-	private String upc;
-	private Integer quantityOnHand;
+	private String code;
+	private Integer quantity;
 	private BigDecimal price;
 	private LocalDateTime createdDate;
 	private LocalDateTime updateDate;

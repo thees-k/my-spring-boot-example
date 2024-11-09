@@ -26,15 +26,15 @@ public class TopicServiceImpl implements TopicService {
 		this.topicMap = new HashMap<>();
 
 		TopicDto topic1 = TopicDto.builder().id(UUID.randomUUID()).version(1).name("Galaxy Cat").style(TopicStyle.BLUE)
-				.upc("12356").price(new BigDecimal("12.99")).quantityOnHand(122).createdDate(LocalDateTime.now())
+				.code("12356").price(new BigDecimal("12.99")).quantity(122).createdDate(LocalDateTime.now())
 				.updateDate(LocalDateTime.now()).build();
 
 		TopicDto topic2 = TopicDto.builder().id(UUID.randomUUID()).version(1).name("Crank").style(TopicStyle.BLUE)
-				.upc("12356222").price(new BigDecimal("11.99")).quantityOnHand(392).createdDate(LocalDateTime.now())
+				.code("12356222").price(new BigDecimal("11.99")).quantity(392).createdDate(LocalDateTime.now())
 				.updateDate(LocalDateTime.now()).build();
 
 		TopicDto topic3 = TopicDto.builder().id(UUID.randomUUID()).version(1).name("Sunshine City")
-				.style(TopicStyle.YELLOW).upc("12356").price(new BigDecimal("13.99")).quantityOnHand(144)
+				.style(TopicStyle.YELLOW).code("12356").price(new BigDecimal("13.99")).quantity(144)
 				.createdDate(LocalDateTime.now()).updateDate(LocalDateTime.now()).build();
 
 		topicMap.put(topic1.getId(), topic1);
@@ -58,12 +58,12 @@ public class TopicServiceImpl implements TopicService {
 			existing.setPrice(topicDto.getPrice());
 		}
 
-		if (topicDto.getQuantityOnHand() != null) {
-			existing.setQuantityOnHand(topicDto.getQuantityOnHand());
+		if (topicDto.getQuantity() != null) {
+			existing.setQuantity(topicDto.getQuantity());
 		}
 
-		if (StringUtils.hasText(topicDto.getUpc())) {
-			existing.setUpc(topicDto.getUpc());
+		if (StringUtils.hasText(topicDto.getCode())) {
+			existing.setCode(topicDto.getCode());
 		}
 	}
 
@@ -77,8 +77,8 @@ public class TopicServiceImpl implements TopicService {
 		TopicDto existing = topicMap.get(id);
 		existing.setName(topicDto.getName());
 		existing.setPrice(topicDto.getPrice());
-		existing.setUpc(topicDto.getUpc());
-		existing.setQuantityOnHand(topicDto.getQuantityOnHand());
+		existing.setCode(topicDto.getCode());
+		existing.setQuantity(topicDto.getQuantity());
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public class TopicServiceImpl implements TopicService {
 
 		TopicDto savedTopicDto = TopicDto.builder().id(UUID.randomUUID()).version(1).createdDate(LocalDateTime.now())
 				.updateDate(LocalDateTime.now()).name(topicDto.getName()).style(topicDto.getStyle())
-				.quantityOnHand(topicDto.getQuantityOnHand()).upc(topicDto.getUpc()).price(topicDto.getPrice()).build();
+				.quantity(topicDto.getQuantity()).code(topicDto.getCode()).price(topicDto.getPrice()).build();
 
 		topicMap.put(savedTopicDto.getId(), savedTopicDto);
 

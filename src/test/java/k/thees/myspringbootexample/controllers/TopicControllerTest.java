@@ -92,8 +92,8 @@ class TopicControllerTest {
 				.andExpect(buildMatcher("version", topicDto.getVersion()))
 				.andExpect(buildMatcher("name", topicDto.getName()))
 				.andExpect(buildMatcher("style", topicDto.getStyle()))
-				.andExpect(buildMatcher("upc", topicDto.getUpc()))
-				.andExpect(buildMatcher("quantityOnHand", topicDto.getQuantityOnHand()))
+				.andExpect(buildMatcher("code", topicDto.getCode()))
+				.andExpect(buildMatcher("quantity", topicDto.getQuantity()))
 				.andExpect(buildMatcher("price", topicDto.getPrice()))
 				.andExpect(buildMatcher("createdDate", topicDto.getCreatedDate().format(formatter)))
 				.andExpect(buildMatcher("updateDate", topicDto.getUpdateDate().format(formatter)))
@@ -136,7 +136,7 @@ class TopicControllerTest {
 		TopicDto inputTopicDto = TopicDto.builder().build();
 
 		TopicDto outputTopicDto = TopicDto.builder().createdDate(localDateTime).id(UUID.randomUUID()).name("test topic")
-				.price(new BigDecimal("10.0")).quantityOnHand(10).style(TopicStyle.MAGENTA).upc("test upc")
+				.price(new BigDecimal("10.0")).quantity(10).style(TopicStyle.MAGENTA).code("test code")
 				.updateDate(localDateTime).version(0).build();
 
 		given(topicService.create(inputTopicDto)).willReturn(outputTopicDto);

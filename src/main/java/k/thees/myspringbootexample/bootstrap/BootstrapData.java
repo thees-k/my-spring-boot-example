@@ -29,16 +29,16 @@ public class BootstrapData implements CommandLineRunner {
 
 	private void insertTopicData() {
 		if (topicRepository.count() == 0) {
-			TopicEntity topic1 = TopicEntity.builder().name("Galaxy Cat").style(TopicStyle.BLUE).upc("12356")
-					.price(new BigDecimal("12.99")).quantityOnHand(122).createdDate(LocalDateTime.now())
+			TopicEntity topic1 = TopicEntity.builder().name("Galaxy Cat").style(TopicStyle.BLUE).code("12356")
+					.price(new BigDecimal("12.99")).quantity(122).createdDate(LocalDateTime.now())
 					.updateDate(LocalDateTime.now()).build();
 
-			TopicEntity topic2 = TopicEntity.builder().name("Crank").style(TopicStyle.BLUE).upc("12356222")
-					.price(new BigDecimal("11.99")).quantityOnHand(392).createdDate(LocalDateTime.now())
+			TopicEntity topic2 = TopicEntity.builder().name("Crank").style(TopicStyle.BLUE).code("12356222")
+					.price(new BigDecimal("11.99")).quantity(392).createdDate(LocalDateTime.now())
 					.updateDate(LocalDateTime.now()).build();
 
-			TopicEntity topic3 = TopicEntity.builder().name("Sunshine City").style(TopicStyle.YELLOW).upc("12356")
-					.price(new BigDecimal("13.99")).quantityOnHand(144).createdDate(LocalDateTime.now())
+			TopicEntity topic3 = TopicEntity.builder().name("Sunshine City").style(TopicStyle.YELLOW).code("12356")
+					.price(new BigDecimal("13.99")).quantity(144).createdDate(LocalDateTime.now())
 					.updateDate(LocalDateTime.now()).build();
 
 			topicRepository.save(topic1);
