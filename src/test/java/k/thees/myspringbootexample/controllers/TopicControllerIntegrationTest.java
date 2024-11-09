@@ -2,9 +2,7 @@ package k.thees.myspringbootexample.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -85,17 +83,5 @@ class TopicControllerIntegrationTest {
 		ResponseEntity<TopicDto> responseEntity = topicController.create(inputTopicDto);
 
 		assertEquals(responseEntity.getStatusCode(), HttpStatusCode.valueOf(HttpStatus.CREATED.value()));
-	}
-
-	private void validateNewCreatedTopic(TopicDto inputTopicDto, TopicDto newCreatedTopicDto) {
-		assertNotNull(newCreatedTopicDto.getId());
-		assertNotNull(newCreatedTopicDto.getVersion());
-
-		assertEquals(newCreatedTopicDto.getCode(), inputTopicDto.getCode());
-		assertEquals(newCreatedTopicDto.getCreatedDate(), inputTopicDto.getCreatedDate());
-		assertEquals(newCreatedTopicDto.getName(), inputTopicDto.getName());
-		assertTrue(newCreatedTopicDto.getPrice().compareTo(inputTopicDto.getPrice()) == 0);
-		assertEquals(newCreatedTopicDto.getQuantity(), inputTopicDto.getQuantity());
-		assertEquals(newCreatedTopicDto.getUpdateDate(), inputTopicDto.getUpdateDate());
 	}
 }
