@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Primary
 @RequiredArgsConstructor
-public class CustomerServiceJPA implements CustomerService {
+public class CustomerServiceJpa implements CustomerService {
 	private final CustomerRepository customerRepository;
 	private final CustomerMapper customerMapper;
 
