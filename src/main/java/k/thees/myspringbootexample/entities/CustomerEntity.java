@@ -3,7 +3,7 @@ package k.thees.myspringbootexample.entities;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,14 +24,15 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CustomerEntity {
 	@Id
-	@GeneratedValue(generator = "UUID")
-	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue
+	@UuidGenerator
 	@Column(length = 36, columnDefinition = "varchar", updatable = false, nullable = false)
 	private UUID id;
-	private String name;
 
 	@Version
 	private Integer version;
+
+	private String name;
 	private LocalDateTime createdDate;
 	private LocalDateTime updateDate;
 }
