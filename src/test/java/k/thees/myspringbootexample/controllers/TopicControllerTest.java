@@ -18,8 +18,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -168,24 +166,29 @@ class TopicControllerTest {
 
 	@Test
 	void testPatch() throws Exception {
+
 		TopicDto topicDto = topicServiceImpl.getAll().get(0);
+		topicDto.setName("New name");
 
-		Map<String, Object> topicMap = new HashMap<>();
-		topicMap.put("name", "New Name");
+		given(topicService.patch(any(), any())).willReturn(Optional.of(topicDto));
 
-		mockMvc.perform(patch(TopicController.TOPICS_PATH_ID, topicDto.getId()).contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(topicMap)))
+		mockMvc.perform(patch(TopicController.TOPICS_PATH_ID, topicDto.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(topicDto)))
 		.andExpect(status().isNoContent());
 
 		verify(topicService).patch(uuidArgumentCaptor.capture(), topicArgumentCaptor.capture());
 
 		assertThat(topicDto.getId()).isEqualTo(uuidArgumentCaptor.getValue());
-		assertThat(topicMap.get("name")).isEqualTo(topicArgumentCaptor.getValue().getName());
+		assertThat(topicDto.getName()).isEqualTo(topicArgumentCaptor.getValue().getName());
 	}
 
 	@Test
 	void testDelete() throws Exception {
 		TopicDto topicDto = topicServiceImpl.getAll().get(0);
+
+		given(topicService.delete(topicDto.getId())).willReturn(true);
 
 		mockMvc.perform(delete(TopicController.TOPICS_PATH_ID, topicDto.getId()).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isNoContent());
@@ -198,6 +201,11 @@ class TopicControllerTest {
 	@Test
 	void testUpdate() throws Exception {
 		TopicDto topicDto = topicServiceImpl.getAll().get(0);
+
+		// Not working, test will fail:
+		// given(topicService.update(topicDto.getId(), topicDto)).willReturn(Optional.of(topicDto));
+
+		given(topicService.update(any(), any())).willReturn(Optional.of(topicDto));
 
 		mockMvc.perform(put(TopicController.TOPICS_PATH_ID, topicDto.getId())
 				.accept(MediaType.APPLICATION_JSON)

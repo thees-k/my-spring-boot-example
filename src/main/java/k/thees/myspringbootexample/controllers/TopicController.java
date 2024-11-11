@@ -74,24 +74,26 @@ public class TopicController {
 	@PatchMapping(TOPICS_PATH_ID)
 	public ResponseEntity<TopicDto> patch(@PathVariable("topicId") UUID id, @RequestBody TopicDto topicDto) {
 
-		topicService.patch(id, topicDto);
-
-		return new ResponseEntity<TopicDto>(HttpStatus.NO_CONTENT);
+		return topicService.patch(id, topicDto)
+				.map(it -> new ResponseEntity<TopicDto>(HttpStatus.NO_CONTENT))
+				.orElseThrow(MyNotFoundException::new);
 	}
 
 	@DeleteMapping(TOPICS_PATH_ID)
 	public ResponseEntity<TopicDto> delete(@PathVariable("topicId") UUID id) {
 
-		topicService.delete(id);
-
-		return new ResponseEntity<TopicDto>(HttpStatus.NO_CONTENT);
+		if (topicService.delete(id)) {
+			return new ResponseEntity<TopicDto>(HttpStatus.NO_CONTENT);
+		} else {
+			return new ResponseEntity<TopicDto>(HttpStatus.NOT_FOUND);
+		}
 	}
 
 	@PutMapping(TOPICS_PATH_ID)
 	public ResponseEntity<TopicDto> update(@PathVariable("topicId") UUID id, @RequestBody TopicDto topicDto) {
 
-		topicService.update(id, topicDto);
-
-		return new ResponseEntity<TopicDto>(HttpStatus.NO_CONTENT);
+		return topicService.update(id, topicDto)
+				.map(it -> new ResponseEntity<TopicDto>(HttpStatus.NO_CONTENT))
+				.orElseThrow(MyNotFoundException::new);
 	}
 }

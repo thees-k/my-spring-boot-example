@@ -43,42 +43,61 @@ public class TopicServiceImpl implements TopicService {
 	}
 
 	@Override
-	public void patch(UUID id, TopicDto topicDto) {
-		TopicDto existing = topicMap.get(id);
+	public Optional<TopicDto> patch(UUID id, TopicDto topicDto) {
 
-		if (StringUtils.hasText(topicDto.getName())) {
+		if(topicMap.containsKey(id)) {
+
+			TopicDto existing = topicMap.get(id);
+
+			if (StringUtils.hasText(topicDto.getName())) {
+				existing.setName(topicDto.getName());
+			}
+
+			if (topicDto.getStyle() != null) {
+				existing.setStyle(topicDto.getStyle());
+			}
+
+			if (topicDto.getPrice() != null) {
+				existing.setPrice(topicDto.getPrice());
+			}
+
+			if (topicDto.getQuantity() != null) {
+				existing.setQuantity(topicDto.getQuantity());
+			}
+
+			if (StringUtils.hasText(topicDto.getCode())) {
+				existing.setCode(topicDto.getCode());
+			}
+			return Optional.of(existing);
+		} else {
+			return Optional.empty();
+		}
+	}
+
+	@Override
+	public boolean delete(UUID id) {
+
+		if(topicMap.containsKey(id)) {
+			topicMap.remove(id);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public Optional<TopicDto> update(UUID id, TopicDto topicDto) {
+
+		if(topicMap.containsKey(id)) {
+			TopicDto existing = topicMap.get(id);
 			existing.setName(topicDto.getName());
-		}
-
-		if (topicDto.getStyle() != null) {
-			existing.setStyle(topicDto.getStyle());
-		}
-
-		if (topicDto.getPrice() != null) {
 			existing.setPrice(topicDto.getPrice());
-		}
-
-		if (topicDto.getQuantity() != null) {
-			existing.setQuantity(topicDto.getQuantity());
-		}
-
-		if (StringUtils.hasText(topicDto.getCode())) {
 			existing.setCode(topicDto.getCode());
+			existing.setQuantity(topicDto.getQuantity());
+			return Optional.of(existing);
+		} else {
+			return Optional.empty();
 		}
-	}
-
-	@Override
-	public void delete(UUID id) {
-		topicMap.remove(id);
-	}
-
-	@Override
-	public void update(UUID id, TopicDto topicDto) {
-		TopicDto existing = topicMap.get(id);
-		existing.setName(topicDto.getName());
-		existing.setPrice(topicDto.getPrice());
-		existing.setCode(topicDto.getCode());
-		existing.setQuantity(topicDto.getQuantity());
 	}
 
 	@Override

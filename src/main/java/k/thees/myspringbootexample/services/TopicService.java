@@ -14,9 +14,9 @@ public interface TopicService {
 
 	TopicDto create(TopicDto topicDto);
 
-	void update(UUID id, TopicDto topicDto);
+	Optional<TopicDto> update(UUID id, TopicDto topicDto);
 
-	void delete(UUID id);
+	boolean delete(UUID id);
 
-	void patch(UUID id, TopicDto topicDto);
+	Optional<TopicDto> patch(UUID id, TopicDto topicDto);
 }
