@@ -41,6 +41,7 @@ public class TopicEntity {
 	@NotBlank
 	@NotNull // Actually not necessary because @NotBlank includes it already. But there are more messages to the user in the response.
 	// If name is == null, it will say {"name":"must not be blank"},{"name":"must not be null"}
+	@Size(max = 255) // Recommended Bean Validation Constraint! - 255 is taken as value because we suppose the maximal number of characters in a VARCHAR database column is 255.
 	private String name;
 
 	@NotNull

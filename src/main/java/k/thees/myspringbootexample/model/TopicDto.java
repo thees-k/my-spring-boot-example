@@ -21,9 +21,10 @@ public class TopicDto {
 	private UUID id;
 	private Integer version;
 
-	@NotBlank
+	@NotBlank // a "Bean Validation Constraint"
 	@NotNull // Actually not necessary because @NotBlank includes it already. But there are more messages to the user in the response.
 	// If name is == null, it will say {"name":"must not be blank"},{"name":"must not be null"}
+	@Size(max = 255) // see field "name" of TopicEntity for explanation
 	private String name;
 
 	@NotNull
