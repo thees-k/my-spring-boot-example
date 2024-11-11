@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
@@ -29,6 +30,7 @@ public class TopicDto {
 	private TopicStyle style;
 
 	@NotBlank
+	@Size(max = 10) // See field "code" of TopicEntity, "@Size" and "@Column" - must be the same value (here: 10)!
 	private String code;
 	private Integer quantity;
 

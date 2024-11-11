@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import k.thees.myspringbootexample.model.TopicStyle;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,6 +47,8 @@ public class TopicEntity {
 	private TopicStyle style;
 
 	@NotBlank
+	@Column(length = 10) // If column size is specified, a constraint with the same value must be set, too (@Size)
+	@Size(max = 10)  // See field "code" of TopicDto, "@Size" - must be the same!
 	private String code;
 	private Integer quantity;
 
