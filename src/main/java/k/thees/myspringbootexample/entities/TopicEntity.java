@@ -11,6 +11,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import k.thees.myspringbootexample.model.TopicStyle;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,11 +37,21 @@ public class TopicEntity {
 	@Version
 	private Integer version;
 
+	@NotBlank
+	@NotNull // Actually not necessary because @NotBlank includes it already. But there are more messages to the user in the response.
+	// If name is == null, it will say {"name":"must not be blank"},{"name":"must not be null"}
 	private String name;
+
+	@NotNull
 	private TopicStyle style;
+
+	@NotBlank
 	private String code;
 	private Integer quantity;
+
+	@NotNull
 	private BigDecimal price;
+
 	private LocalDateTime createdDate;
 	private LocalDateTime updateDate;
 }

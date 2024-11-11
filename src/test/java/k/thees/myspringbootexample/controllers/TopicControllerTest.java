@@ -43,7 +43,9 @@ import k.thees.myspringbootexample.model.TopicDto;
 import k.thees.myspringbootexample.model.TopicStyle;
 import k.thees.myspringbootexample.services.TopicService;
 import k.thees.myspringbootexample.services.TopicServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @WebMvcTest(TopicController.class)
 class TopicControllerTest {
 
@@ -131,13 +133,13 @@ class TopicControllerTest {
 
 		var localDateTime = LocalDateTime.now();
 
-		TopicDto inputTopicDto = TopicDto.builder().build();
+		TopicDto inputTopicDto = createTestTopicDto(localDateTime);
 
-		TopicDto outputTopicDto = TopicDto.builder().createdDate(localDateTime).id(UUID.randomUUID()).name("test topic")
-				.price(new BigDecimal("10.0")).quantity(10).style(TopicStyle.MAGENTA).code("test code")
-				.updateDate(localDateTime).version(0).build();
+		TopicDto outputTopicDto = createTestTopicDto(localDateTime);
+		outputTopicDto.setId(UUID.randomUUID());
+		outputTopicDto.setVersion(0);
 
-		given(topicService.create(inputTopicDto)).willReturn(outputTopicDto);
+		given(topicService.create(any())).willReturn(outputTopicDto);
 
 		String json = objectMapper.writeValueAsString(inputTopicDto);
 
@@ -162,6 +164,20 @@ class TopicControllerTest {
 		String responseJson = result.getResponse().getContentAsString();
 		System.out.println("Response Body:\n" + formatJson(responseJson));
 
+	}
+
+	private TopicDto createTestTopicDto(LocalDateTime localDateTime) {
+		return TopicDto.builder()
+				.createdDate(localDateTime)
+				// .id(UUID.randomUUID()) // id is not set
+				.name("test topic")
+				.price(new BigDecimal("10.0"))
+				.quantity(10)
+				.style(TopicStyle.MAGENTA)
+				.code("test code")
+				.updateDate(localDateTime)
+				// .version(0) // version is not set
+				.build();
 	}
 
 	@Test
@@ -231,4 +247,39 @@ class TopicControllerTest {
 
 		mockMvc.perform(get(TopicController.TOPICS_PATH_ID, UUID.randomUUID())).andExpect(status().isNotFound());
 	}
+
+	@Test
+	void testCreateButInputIsNotValid() throws Exception {
+
+		TopicDto inputTopicDto = TopicDto.builder().build();
+
+		given(topicService.create(inputTopicDto)).willReturn(topicServiceImpl.getAll().get(0));
+
+		MvcResult result = mockMvc
+				.perform(post(TopicController.TOPICS_PATH)
+						.accept(MediaType.APPLICATION_JSON)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(inputTopicDto)))
+				.andExpect(status().isBadRequest())
+				.andReturn();
+
+		log.debug("Response content: " + result.getResponse().getContentAsString());
+	}
+
+	@Test
+	void testUpdateWithEmptyName() throws Exception {
+
+		TopicDto topicDto = topicServiceImpl.getAll().get(0);
+		topicDto.setName("");
+
+		MvcResult result = mockMvc.perform(put(TopicController.TOPICS_PATH_ID, topicDto.getId())
+				.accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(topicDto)))
+				.andExpect(status().isBadRequest())
+				.andReturn();
+
+		log.debug("Response content: " + result.getResponse().getContentAsString());
+	}
+
 }

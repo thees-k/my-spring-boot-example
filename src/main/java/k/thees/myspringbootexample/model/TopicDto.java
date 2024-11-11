@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,10 +19,20 @@ public class TopicDto {
 
 	private UUID id;
 	private Integer version;
+
+	@NotBlank
+	@NotNull // Actually not necessary because @NotBlank includes it already. But there are more messages to the user in the response.
+	// If name is == null, it will say {"name":"must not be blank"},{"name":"must not be null"}
 	private String name;
+
+	@NotNull
 	private TopicStyle style;
+
+	@NotBlank
 	private String code;
 	private Integer quantity;
+
+	@NotNull
 	private BigDecimal price;
 
 	@JsonFormat(pattern = LOCAL_DATE_TIME_FORMAT)

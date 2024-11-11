@@ -1,0 +1,25 @@
+{
+	"codes": [
+		"NotBlank.topicDto.name",
+		"NotBlank.name",
+		"NotBlank.java.lang.String",
+		"NotBlank"
+	],
+	"arguments": [
+		{
+			"codes": [
+				"topicDto.name",
+				"name"
+			],
+			"arguments": null,
+			"defaultMessage": "name",
+			"code": "name"
+		}
+	],
+	"defaultMessage": "must not be blank",
+	"objectName": "topicDto",
+	"field": "name",
+	"rejectedValue": null,
+	"bindingFailure": false,
+	"code": "NotBlank"
+}
