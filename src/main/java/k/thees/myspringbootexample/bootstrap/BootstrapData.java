@@ -37,7 +37,7 @@ public class BootstrapData implements CommandLineRunner {
 					.price(new BigDecimal("11.99")).quantity(392).createdDate(LocalDateTime.now())
 					.updateDate(LocalDateTime.now()).build();
 
-			TopicEntity topic3 = TopicEntity.builder().name("Sunshine City").style(TopicStyle.YELLOW).code("12356")
+			TopicEntity topic3 = TopicEntity.builder().name("Sunshine City").style(TopicStyle.YELLOW).code("1704")
 					.price(new BigDecimal("13.99")).quantity(144).createdDate(LocalDateTime.now())
 					.updateDate(LocalDateTime.now()).build();
 
