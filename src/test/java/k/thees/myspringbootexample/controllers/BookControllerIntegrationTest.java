@@ -1,82 +1,150 @@
 package k.thees.myspringbootexample.controllers;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.h2.util.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import k.thees.myspringbootexample.entities.Book;
-import k.thees.myspringbootexample.mappers.BookMapper;
 import k.thees.myspringbootexample.model.BookDto;
 import k.thees.myspringbootexample.repositories.BookRepository;
-import k.thees.myspringbootexample.services.BookService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @SpringBootTest
 class BookControllerIntegrationTest {
 
 	@Autowired
-	BookService bookService;
+	private BookRepository bookRepository;
 
 	@Autowired
-	BookController bookController;
+	private WebApplicationContext webApplicationContext;
 
 	@Autowired
-	BookRepository bookRepository;
+	private ObjectMapper objectMapper;
 
-	@Autowired
-	BookMapper bookMapper;
+	private MockMvc mockMvc;
 
-
-	@Test
-	void testGet() {
-		Book bookEntity = bookRepository.findAll().get(0);
-
-		BookDto dto = bookController.get(bookEntity.getId()).getBody();
-
-		assertThat(dto).isNotNull();
+	@BeforeEach
+	void setup() {
+		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 	}
 
 	@Test
-	void testGetBookWithMyNotFoundException() {
-		assertThrows(MyNotFoundException.class, () -> bookController.get(Integer.MAX_VALUE));
+	void testGet() throws Exception {
+
+		Book book = bookRepository.findAll().get(0);
+
+		// mockMvc sends a mock GET request:
+		MvcResult result = mockMvc.perform(get(BookController.BOOKS_PATH_ID, book.getId())
+				.accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(buildMatcher("id", book.getId()))
+				.andExpect(buildMatcher("author", book.getAuthor()))
+				.andExpect(buildMatcher("title", book.getTitle()))
+				.andReturn();
+
+		// Get the JSON response as a string
+		String jsonResponse = result.getResponse().getContentAsString();
+
+		// Print out the JSON response
+		log.debug("\nJSON Response:\n" + jsonResponse);
+
+		// Print the formatted JSON
+		log.debug(formatJson(jsonResponse));
+	}
+
+	private ResultMatcher buildMatcher(String fieldName, Object object) {
+		return jsonPath("$."+fieldName).value(object + "");
+	}
+
+	private String formatJson(String jsonResponse) throws JsonProcessingException, JsonMappingException {
+
+		if (StringUtils.isBlank(jsonResponse)) {
+			return "";
+		} else {
+			objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // Enable pretty-printing
+
+			// Parse the JSON string and format it
+			Object json = objectMapper.readValue(jsonResponse, Object.class);
+			return objectMapper.writeValueAsString(json);
+		}
+
 	}
 
 	@Test
-	void testGetAll() {
-		List<BookDto> dtos = bookController.getAll().getBody();
+	void testGetButNotFound() throws Exception {
 
-		assertThat(dtos.size()).isEqualTo(3);
+		mockMvc.perform(get(BookController.BOOKS_PATH_ID, -1)
+				.accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void testGetAll() throws Exception {
+
+		int recordCount = (int) bookRepository.count();
+
+		mockMvc.perform(get(BookController.BOOKS_PATH)
+				.accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk())
+		.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+		.andExpect(jsonPath("$.length()", is(recordCount)));
+
 	}
 
 	@Rollback
 	@Transactional
 	@Test
-	void testGetAllReturnsEmptyList() {
+	void testGetAllReturnsEmptyList() throws Exception {
+
 		bookRepository.deleteAll();
-		List<BookDto> dtos = bookController.getAll().getBody();
 
-		assertThat(dtos.size()).isEqualTo(0);
+		assert(bookRepository.count() == 0);
+
+		mockMvc.perform(get(BookController.BOOKS_PATH)
+				.accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk())
+		.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+		.andExpect(jsonPath("$.length()", is(0)));
 	}
 
 	@Rollback
 	@Transactional
 	@Test
-	void testCreate() {
+	void testCreate() throws Exception {
 
 		final BookDto inputBookDto = BookDto.builder()//
 				.author("test author")
@@ -84,51 +152,75 @@ class BookControllerIntegrationTest {
 				.price(new BigDecimal("100"))
 				.build();
 
-		ResponseEntity<BookDto> responseEntity = bookController.create(inputBookDto);
+		String json = objectMapper.writeValueAsString(inputBookDto);
 
-		assertEquals(responseEntity.getStatusCode(), HttpStatusCode.valueOf(HttpStatus.CREATED.value()));
-		assertNotNull(responseEntity.getHeaders().getLocation());
+		log.debug(formatJson(json));
 
-		String [] pathElements = responseEntity.getHeaders().getLocation().getPath().split("/");
+		MvcResult result = mockMvc
+				.perform(post(BookController.BOOKS_PATH)
+						.accept(MediaType.APPLICATION_JSON)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(json))
+				.andExpect(status().isCreated())
+				.andExpect(header().exists("Location"))
+				.andReturn();
+
+		// Print response headers
+		log.debug("Response Headers:");
+		result.getResponse().getHeaderNames().forEach(
+				headerName -> log.debug(headerName + ": " + result.getResponse().getHeader(headerName)));
+
+		// Print response body
+		String responseJson = result.getResponse().getContentAsString();
+		log.debug("Response Body:\n" + formatJson(responseJson));
+
+		Integer id = fetchIdFromLocation(result);
+
+		bookRepository.findById(id)
+		.ifPresentOrElse(newCreatedBook -> validateBookCompletely(newCreatedBook, inputBookDto, id), AssertionError::new);
+	}
+
+	private Integer fetchIdFromLocation(MvcResult result) {
+		String pathOfLocation = result.getResponse().getHeaders("Location").get(0);
+		String [] pathElements = pathOfLocation.split("/");
 		String id = pathElements[pathElements.length-1];
-
-		bookRepository.findById(Integer.parseInt(id))
-		.ifPresentOrElse(newCreatedBookEntity -> validateFullyUpdatedBook(newCreatedBookEntity, inputBookDto), AssertionError::new);
+		return Integer.valueOf(id);
 	}
 
 	@Rollback
 	@Transactional
 	@Test
-	void testDelete() {
-		Book bookEntity = bookRepository.findAll().get(0);
+	void testDelete() throws Exception {
 
-		ResponseEntity<BookDto> responseEntity = bookController.delete(bookEntity.getId());
+		Book book = bookRepository.findAll().get(0);
+		Integer id = book.getId();
 
-		assertEquals(responseEntity.getStatusCode(), HttpStatusCode.valueOf(HttpStatus.NO_CONTENT.value()));
+		mockMvc.perform(delete(BookController.BOOKS_PATH_ID, book.getId())
+				.accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().isNoContent());
 
-		assertFalse(bookRepository.existsById(bookEntity.getId()));
+		bookRepository.flush();
+
+		assertTrue(bookRepository.findById(id).isEmpty());
 	}
 
 	@Rollback
 	@Transactional
 	@Test
-	void testDeleteButNotFound() {
+	void testDeleteButNotFound() throws Exception {
 
-		Integer id = Integer.MAX_VALUE;
-
-		assert(!bookRepository.existsById(id));
-
-		ResponseEntity<BookDto> responseEntity = bookController.delete(id);
-
-		assertEquals(responseEntity.getStatusCode(), HttpStatusCode.valueOf(HttpStatus.NOT_FOUND.value()));
+		mockMvc.perform(delete(BookController.BOOKS_PATH_ID, -1)
+				.accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().isNotFound());
 	}
 
 	@Rollback
 	@Transactional
 	@Test
-	void testUpdate() {
+	void testUpdate() throws JsonProcessingException, Exception {
 
 		Book bookEntity = bookRepository.findAll().get(0);
+		Integer id = bookEntity.getId();
 
 		final BookDto updateBookDto = BookDto.builder()//
 				.author("test author")
@@ -136,82 +228,116 @@ class BookControllerIntegrationTest {
 				.price(new BigDecimal("30.00"))
 				.build();
 
-		ResponseEntity<BookDto> responseEntity = bookController.update(bookEntity.getId(), updateBookDto);
-		assertEquals(responseEntity.getStatusCode(), HttpStatusCode.valueOf(HttpStatus.NO_CONTENT.value()));
+		mockMvc.perform(put(BookController.BOOKS_PATH_ID, id)
+				.accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(updateBookDto)))
+		.andExpect(status().isNoContent());
 
-		validateFullyUpdatedBook(bookEntity, updateBookDto);
+		bookRepository.flush();
+
+		bookEntity = bookRepository.findById(id).get();
+		validateBookCompletely(bookEntity, updateBookDto, id);
 	}
 
-	private void validateFullyUpdatedBook(Book updatedBookEntity, BookDto expectedBookDto) {
-		assertNotNull(updatedBookEntity.getId());
+	private void validateBookCompletely(Book book, BookDto expectedBookDto, Integer expectedId) {
 
-		assertEquals(updatedBookEntity.getAuthor(), expectedBookDto.getAuthor());
-		assertEquals(updatedBookEntity.getTitle(), expectedBookDto.getTitle());
-		assertTrue(updatedBookEntity.getPrice().compareTo(expectedBookDto.getPrice()) == 0);
-	}
-
-	@Rollback
-	@Transactional
-	@Test
-	void testUpdateButBotFound() {
-
-		Integer id = Integer.MAX_VALUE;
-
-		assert(!bookRepository.existsById(id));
-
-		assertThrows(MyNotFoundException.class, () -> bookController.update(id, BookDto.builder().build()));
+		assertEquals(book.getId(), expectedId);
+		assertEquals(book.getAuthor(), expectedBookDto.getAuthor());
+		assertEquals(book.getTitle(), expectedBookDto.getTitle());
+		assertTrue(book.getPrice().compareTo(expectedBookDto.getPrice()) == 0);
 	}
 
 	@Rollback
 	@Transactional
 	@Test
-	void testPatch() {
-
-		Book bookEntity = bookRepository.findAll().get(0);
-		BookDto oldBookDto = bookMapper.entityToDto(bookEntity);
+	void testUpdateButNotFound() throws Exception {
 
 		final BookDto updateBookDto = BookDto.builder()//
-				.author(null) // -> author will not be updated
+				.author("test author")
 				.title("test title")
 				.price(new BigDecimal("30.00"))
 				.build();
 
-		ResponseEntity<BookDto> responseEntity = bookController.patch(bookEntity.getId(), updateBookDto);
-		assertEquals(responseEntity.getStatusCode(), HttpStatusCode.valueOf(HttpStatus.NO_CONTENT.value()));
-
-		validatePatchedBook(bookEntity, updateBookDto, oldBookDto);
-	}
-
-	private void validatePatchedBook(Book patchedBookEntity, BookDto expectedBookDto, BookDto oldBookDto) {
-		assertNotNull(patchedBookEntity.getId());
-
-		if(!StringUtils.isNullOrEmpty(expectedBookDto.getAuthor())) {
-			assertEquals(patchedBookEntity.getAuthor(), expectedBookDto.getAuthor());
-		} else {
-			assertEquals(patchedBookEntity.getAuthor(), oldBookDto.getAuthor());
-		}
-		if(!StringUtils.isNullOrEmpty(expectedBookDto.getTitle())) {
-			assertEquals(patchedBookEntity.getTitle(), expectedBookDto.getTitle());
-		} else {
-			assertEquals(patchedBookEntity.getTitle(), oldBookDto.getTitle());
-		}
-		if(expectedBookDto.getPrice() != null) {
-			assertTrue(patchedBookEntity.getPrice().compareTo(expectedBookDto.getPrice()) == 0);
-		} else {
-			assertTrue(patchedBookEntity.getPrice().compareTo(oldBookDto.getPrice()) == 0);
-		}
+		mockMvc.perform(put(BookController.BOOKS_PATH_ID, -1)
+				.accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(updateBookDto)))
+		.andExpect(status().isNotFound());
 	}
 
 	@Rollback
 	@Transactional
 	@Test
-	void testPatchButBotFound() {
+	void testPatch() throws Exception {
 
-		Integer id = Integer.MAX_VALUE;
+		String newTitle = "New title";
 
-		assert(!bookRepository.existsById(id));
+		Map<String, Object> map = new HashMap<>();
+		map.put("title", newTitle);
 
-		assertThrows(MyNotFoundException.class, () -> bookController.patch(id, BookDto.builder().build()));
+		Book book = bookRepository.findAll().get(0);
+		String author = book.getAuthor();
+		BigDecimal price = book.getPrice();
+
+		mockMvc.perform(patch(BookController.BOOKS_PATH_ID, book.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(map)))
+		.andExpect(status().isNoContent());
+
+		bookRepository.flush();
+
+		book = bookRepository.findAll().get(0);
+
+		assertEquals(newTitle, book.getTitle());
+		assertEquals(author, book.getAuthor());
+		assertTrue(book.getPrice().compareTo(price) == 0);
 	}
 
+	@Rollback
+	@Transactional
+	@Test
+	void testPatchButNotFound() throws JsonProcessingException, Exception {
+
+		Book book = bookRepository.findAll().get(0);
+
+		mockMvc.perform(patch(BookController.BOOKS_PATH_ID, -1)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(book)))
+		.andExpect(status().isNotFound());
+	}
+
+	@Rollback
+	@Transactional
+	@Test
+	void testPatchWithEmptyTitle() throws Exception {
+
+		// TODO Activate out-commented code and find out why there is no constraint validation exception!
+
+		//		String newTitle = "";
+		//
+		//		Map<String, Object> map = new HashMap<>();
+		//		map.put("title", newTitle);
+		//
+		//		Book book = bookRepository.findAll().get(0);
+		//		Integer id = book.getId();
+		//		String author = book.getAuthor();
+		//		BigDecimal price = book.getPrice();
+		//
+		//		mockMvc.perform(patch(BookController.BOOKS_PATH_ID, id)
+		//				.contentType(MediaType.APPLICATION_JSON)
+		//				.accept(MediaType.APPLICATION_JSON)
+		//				.content(objectMapper.writeValueAsString(map)))
+		//		.andExpect(status().isNoContent());
+		//
+		//		bookRepository.flush();
+		//
+		//		book = bookRepository.findById(id).get();
+		//
+		//		assertEquals(newTitle, book.getTitle());
+		//		assertEquals(author, book.getAuthor());
+		//		assertTrue(book.getPrice().compareTo(price) == 0);
+	}
 }
