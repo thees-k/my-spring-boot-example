@@ -1,8 +1,9 @@
 package k.thees.myspringbootexample.model;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
@@ -14,10 +15,12 @@ public class BookDto {
 	private Integer id;
 
 	@Size(max = 100)
-	private Optional<String> author;
+	private String author;
 
 	@Size(max = 100)
-	private Optional<String> title;
+	@NotBlank
+	private String title;
 
-	private Optional<BigDecimal> price;
+	@NotNull
+	private BigDecimal price;
 }
