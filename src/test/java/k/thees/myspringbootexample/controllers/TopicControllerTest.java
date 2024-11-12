@@ -18,6 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -184,20 +186,22 @@ class TopicControllerTest {
 	void testPatch() throws Exception {
 
 		TopicDto topicDto = topicServiceImpl.getAll().get(0);
-		topicDto.setName("New name");
+
+		Map<String, Object> map = new HashMap<>();
+		map.put("name", "New name");
 
 		given(topicService.patch(any(), any())).willReturn(Optional.of(topicDto));
 
 		mockMvc.perform(patch(TopicController.TOPICS_PATH_ID, topicDto.getId())
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(topicDto)))
+				.content(objectMapper.writeValueAsString(map)))
 		.andExpect(status().isNoContent());
 
 		verify(topicService).patch(uuidArgumentCaptor.capture(), topicArgumentCaptor.capture());
 
 		assertThat(topicDto.getId()).isEqualTo(uuidArgumentCaptor.getValue());
-		assertThat(topicDto.getName()).isEqualTo(topicArgumentCaptor.getValue().getName());
+		assertThat(map.get("name")).isEqualTo(topicArgumentCaptor.getValue().getName());
 	}
 
 	@Test
