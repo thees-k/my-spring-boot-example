@@ -36,7 +36,7 @@ public class BookController {
 	}
 
 	@GetMapping(value = BOOKS_PATH_ID)
-	public ResponseEntity<BookDto> get(@PathVariable("id") Integer id) {
+	public ResponseEntity<BookDto> get(@PathVariable Integer id) {
 
 		log.debug("Get Book by Id - in controller");
 
@@ -57,7 +57,7 @@ public class BookController {
 	}
 
 	@PatchMapping(BOOKS_PATH_ID)
-	public ResponseEntity<BookDto> patch(@PathVariable("id") Integer id, @RequestBody BookDto bookDto) {
+	public ResponseEntity<BookDto> patch(@PathVariable Integer id, @RequestBody BookDto bookDto) {
 
 		return bookService.patch(id, bookDto)
 				.map(it -> new ResponseEntity<BookDto>(HttpStatus.NO_CONTENT))
@@ -65,7 +65,7 @@ public class BookController {
 	}
 
 	@DeleteMapping(BOOKS_PATH_ID)
-	public ResponseEntity<BookDto> delete(@PathVariable("id") Integer id) {
+	public ResponseEntity<BookDto> delete(@PathVariable Integer id) {
 
 		if (bookService.delete(id)) {
 			return new ResponseEntity<BookDto>(HttpStatus.NO_CONTENT);
@@ -75,7 +75,7 @@ public class BookController {
 	}
 
 	@PutMapping(BOOKS_PATH_ID)
-	public ResponseEntity<BookDto> update(@PathVariable("id") Integer id, @Validated @RequestBody BookDto bookDto) {
+	public ResponseEntity<BookDto> update(@PathVariable Integer id, @Validated @RequestBody BookDto bookDto) {
 
 		return bookService.update(id, bookDto)
 				.map(it -> new ResponseEntity<BookDto>(HttpStatus.NO_CONTENT))
