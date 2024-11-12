@@ -29,9 +29,11 @@ public class Book {
 	private Integer id;
 
 	@Size(max = 100)
+	@Column(length = 100)
 	private String author;
 
 	@Size(max = 100)
+	@Column(length = 100)
 	@NotBlank
 	private String title;
 
