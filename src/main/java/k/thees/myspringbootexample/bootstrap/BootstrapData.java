@@ -6,8 +6,10 @@ import java.time.LocalDateTime;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import k.thees.myspringbootexample.entities.Book;
 import k.thees.myspringbootexample.entities.TopicEntity;
 import k.thees.myspringbootexample.model.TopicStyle;
+import k.thees.myspringbootexample.repositories.BookRepository;
 import k.thees.myspringbootexample.repositories.TopicRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -15,10 +17,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BootstrapData implements CommandLineRunner {
 	private final TopicRepository topicRepository;
+	private final BookRepository bookRepository;
 
 	@Override
 	public void run(String... args) throws Exception {
 		insertTopicData();
+		insertBookData();
 	}
 
 	private void insertTopicData() {
@@ -39,6 +43,32 @@ public class BootstrapData implements CommandLineRunner {
 			topicRepository.save(topic2);
 			topicRepository.save(topic3);
 		}
-
 	}
+
+
+	private void insertBookData() {
+		if (bookRepository.count() == 0) {
+
+			Book book1 = Book.builder()
+					.author("F. Scott Fitzgerald")
+					.price(new BigDecimal("19.90"))
+					.title("The Great Gatsby")
+					.build();
+			Book book2 = Book.builder()
+					.author("James Joyce")
+					.price(new BigDecimal("27.50"))
+					.title("Ulysses")
+					.build();
+			Book book3 = Book.builder()
+					.author("Marcel Proust")
+					.price(new BigDecimal("48.90"))
+					.title("In Search of Lost Time")
+					.build();
+
+			bookRepository.save(book1);
+			bookRepository.save(book2);
+			bookRepository.save(book3);
+		}
+	}
+
 }

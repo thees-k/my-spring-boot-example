@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-public class TopicControllerAdvice {
+public class MyControllerAdvice {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	ResponseEntity<List<Map<String, String>>> handleBindErrors(MethodArgumentNotValidException exception){
