@@ -2,16 +2,12 @@ package k.thees.myspringbootexample.bootstrap;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.UUID;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import k.thees.myspringbootexample.entities.CustomerEntity;
 import k.thees.myspringbootexample.entities.TopicEntity;
 import k.thees.myspringbootexample.model.TopicStyle;
-import k.thees.myspringbootexample.repositories.CustomerRepository;
 import k.thees.myspringbootexample.repositories.TopicRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -19,12 +15,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BootstrapData implements CommandLineRunner {
 	private final TopicRepository topicRepository;
-	private final CustomerRepository customerRepository;
 
 	@Override
 	public void run(String... args) throws Exception {
 		insertTopicData();
-		insertCustomerData();
 	}
 
 	private void insertTopicData() {
@@ -47,22 +41,4 @@ public class BootstrapData implements CommandLineRunner {
 		}
 
 	}
-
-	private void insertCustomerData() {
-
-		if (customerRepository.count() == 0) {
-			CustomerEntity customer1 = CustomerEntity.builder().id(UUID.randomUUID()).name("Customer 1").version(1)
-					.createdDate(LocalDateTime.now()).updateDate(LocalDateTime.now()).build();
-
-			CustomerEntity customer2 = CustomerEntity.builder().id(UUID.randomUUID()).name("Customer 2").version(1)
-					.createdDate(LocalDateTime.now()).updateDate(LocalDateTime.now()).build();
-
-			CustomerEntity customer3 = CustomerEntity.builder().id(UUID.randomUUID()).name("Customer 3").version(1)
-					.createdDate(LocalDateTime.now()).updateDate(LocalDateTime.now()).build();
-
-			customerRepository.saveAll(Arrays.asList(customer1, customer2, customer3));
-		}
-
-	}
-
 }

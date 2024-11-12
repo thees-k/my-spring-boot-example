@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import k.thees.myspringbootexample.repositories.TopicRepository;
-import k.thees.myspringbootexample.repositories.CustomerRepository;
 
 @DataJpaTest
 class BootstrapDataTest {
@@ -16,14 +15,11 @@ class BootstrapDataTest {
 	@Autowired
 	TopicRepository topicRepository;
 
-	@Autowired
-	CustomerRepository customerRepository;
-
 	BootstrapData bootstrapData;
 
 	@BeforeEach
 	void setUp() {
-		bootstrapData = new BootstrapData(topicRepository, customerRepository);
+		bootstrapData = new BootstrapData(topicRepository);
 	}
 
 	@Test
@@ -31,6 +27,5 @@ class BootstrapDataTest {
 		bootstrapData.run();
 
 		assertThat(topicRepository.count()).isEqualTo(3);
-		assertThat(customerRepository.count()).isEqualTo(3);
 	}
 }
